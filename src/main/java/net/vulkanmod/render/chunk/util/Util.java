@@ -11,19 +11,16 @@ import java.nio.FloatBuffer;
 public class Util {
 
     public static final Direction[] DIRECTIONS = Direction.values();
-    public static final Direction[] XZ_DIRECTIONS = getXzDirections();
+    private static Direction[] XZ_DIRECTIONS;
 
-    private static Direction[] getXzDirections() {
-        Direction[] directions = new Direction[4];
+    static {
+        XZ_DIRECTIONS = new Direction[4];
 
-        int i = 0;
-        for(Direction direction : Direction.values()) {
+        for(Direction direction : DIRECTIONS) {
             if(direction.getAxis() == Direction.Axis.X || direction.getAxis() == Direction.Axis.Z) {
-                directions[i] = direction;
-                ++i;
+                XZ_DIRECTIONS[direction.ordinal()] = direction;
             }
         }
-        return directions;
     }
 
     public static long posLongHash(int x, int y, int z) {
@@ -32,25 +29,14 @@ public class Util {
 
     public static int flooredLog(int v) {
         assert v > 0;
-        int log = 30;
-        int t = 0x40000000;
-
-        while((v & t) == 0) {
-            t >>= 1;
-            log--;
-        }
-
-        return log;
+        return Integer.numberOfTrailingZeros(v);
     }
 
     public static int align(int i, int alignment) {
-        int r = i % alignment;
-        return r != 0 ? i + alignment - r : i;
+        return i + alignment - (i % alignment);
     }
 
     public static ByteBuffer createCopy(ByteBuffer src) {
-        ByteBuffer ret = MemoryUtil.memAlloc(src.remaining());
-        MemoryUtil.memCopy(src, ret);
-        return ret;
+        return src.slice();
     }
 }
